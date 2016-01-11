@@ -1,2 +1,2 @@
-This is a custom project for MVC
-Based on UWF 2.5
+This is a custom project for SOIL
+Based on UWF 3.2
