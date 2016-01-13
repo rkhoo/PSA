@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<configuration>
+  <webpops>
+    <!-- 
+    <webpop id="Exceed" name="Exceed" type="UpstreamWorks.FBProvider.FBProvider, UpstreamWorks.FBProvider" enabled="true" auto="true" triggerActions="accept"/>
+    <webpop id="ADSearch" name="ADSearch" type="UpstreamWorks.FBProvider.FBProvider, UpstreamWorks.FBProvider" enabled="true" auto="true" triggerActions="accept"/>
+    -->
+    <webpop id="Everything" name="Everything" type="UpstreamWorks.FBProvider.FBProvider, UpstreamWorks.FBProvider" enabled="true" auto="true"/>
+  </webpops>
+
+  <providers>
+    <provider webpopId="Everything">
+      <baseExceedUrl url="http://10.33.10.191:8095/ReturnExceedLink.aspx?agent={0}&amp;mbr={1}" />
+      <baseADSearchUrl url="http://10.33.10.191:8095/Default.aspx?agent={0}" />
+      <baseADGetUrl url="http://10.33.10.191:8096/Service1/{0}" />      
+    </provider>
+    <provider webpopId="ocas">
+      <providerUrl url="http://ocas/crm.aspx?" />
+      <param name="State" value="State={0}"/>
+      <param name="PolicyNumber" value="PolicyNumber={0}"/>
+    </provider>
+  </providers>
+</configuration>
+
