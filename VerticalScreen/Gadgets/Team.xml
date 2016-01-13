@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+    <ModulePrefs title="Team Gadget" description="Team Gadget" height="500">
+        <Require feature="settitle" />
+        <Require feature="dynamic-height" />
+        <Require feature="pubsub-2" />
+    </ModulePrefs>
+    <Content type="html">
+        <![CDATA[
+            <!DOCTYPE html>
+
+            <!-- Styling -->
+            <link href="static/bootstrap-css" rel="stylesheet" type="text/css" />
+            <link href="static/internal/gadget/css/Team.css" rel="stylesheet" type="text/css" />
+
+            <!-- Bootstrap / JQuery -->
+            <script src="static/jquery-js" type="text/javascript"></script>
+            <script src="static/bootstrap-js" type="text/javascript"></script>
+            <script src="static/handlebars-js" type="text/javascript"></script>
+
+            <!-- Common -->
+            <script src="static/internal/custom/io.js" type="text/javascript"></script>
+            <script src="static/internal/common/js/logger.js" type="text/javascript"></script>
+
+            <!-- Gadget Config -->
+            <script src="gadget/config" type="text/javascript"></script>
+
+            <!-- SignalR -->
+            <script src="application/teamChat/Scripts/jquery.signalR-1.1.2.js"></script>
+            <script src="application/teamChat/signalr/hubs" type="text/javascript"></script>
+
+            <!-- Team Scripts -->
+            <script src="static/internal/gadget/js/Team/Team.ui.js" type="text/javascript"></script>
+            <script src="static/internal/gadget/js/Team/Team.js" type="text/javascript"></script>
+
+            <div class="container-fluid main-team-container">
+                <div class="row-fluid">
+                    <div class="statsDiv span7" style="float:left">
+                        <div class="row-fluid header">
+                            <h4>Team Daily Agents Statistics</h4><button class="btn btn-mini btnRfrsh pull-right"><i class="icon-refresh"></i>Refresh</button>
+                        </div>
+                        <div id="agentsDiv">
+                            <!-- Agent stats built here-->
+                        </div>
+                        <div id="multiDiv">
+                            <!-- Multi channel stats built here -->
+                        </div>
+                        <div id="phoneDiv">
+                            <!-- Phone stats built here -->
+                        </div>
+                    </div>
+                    <div class="span5" style="float:right">
+                        <div id="chatWindow" class="chatWindow"></div>
+
+                        <div class="input-append" style="width: 100%">
+                            <input id="cb_say" name="cb_say" placeholder="Type here to chat..." class="" type="text">
+                            <div class="btn-group dropup">
+                                <a id="cb_send" name="cb_send" class="btn btn-primary disabled" data-loading-text="...." style="z-index: 40;"><i class="icon-comment icon-white" style="margin-right: 5px;"></i>Send</a>
+                                <a id="cb_clear" name="cb_clear" class="btn" style="z-index: 40;"><i class="icon-fire " style="margin-right: 5px;"></i>Clear</a>
+                                <a id="a_popover" class="btn btn-success dropdown-toggle disabled" data-toggle="dropdown" href="#" style="z-index: 40;" rel="popover" data-placement="top" data-trigger="manual" data-content="Please select a team member here">
+                                    <i class="icon-user icon-white" style="margin-right: 5px;"></i><span id="tmName" data-agentid="" data-ateam="">Team Members</span>
+                                </a>
+                                <ul class="dropdown-menu alignTeamSelector">
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script id="aStats_tmplt" type="text/x-handlebars-template">
+                {{#if error}}
+                    {{error}}
+                {{else}}
+                <div class="row-fluid main-body">
+                    <table class="table table-condensed table-bordered main-table">
+                        <thead>
+                            <tr>
+                                <th>First Name</th>
+                                <th>Last Name</th>
+                                <th class="center">Total Ready</th>
+                                <th class="center">Total Not Ready</th>
+                                <th class="center">Total Contacts Presented</th>
+                                <th class="center">Total Contacts Handled</th>
+                                <th class="center">Average Active Time</th>
+                                <th class="center">Average Wrap Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{#AgentsStats}}
+                            <tr class="" data-target="">
+                                <td>{{AgentFirstName}}</td>
+                                <td>{{AgentLastName}}</td>
+                                <td class="center">{{TotalReady}}</td>
+                                <td class="center">{{TotalNotReady}}</td>
+                                <td class="center">{{CallsPresented}}</td>
+                                <td class="center">{{CallsHandled}}</td>
+                                <td class="center">{{AvgHandleCallsTalkTime}}</td>
+                                <td class="center">{{AvgWrapTime}}</td>
+                            </tr>
+                            {{/AgentsStats}}
+                        </tbody>
+                    </table>
+                </div>
+                {{/if}}
+            </script>
+
+            <script id="aStatsCtios_tmplt" type="text/x-handlebars-template">
+                {{#if error}}
+                    {{error}}
+                {{else}}
+                <div class="row-fluid main-body">
+                    <table class="table table-condensed table-bordered main-table">
+                        <thead>
+                            <tr>
+                                <th>First Name</th>
+                                <th>Last Name</th>
+                                <th class="center">Total Ready</th>
+                                <th class="center">Total Not Ready</th>
+                                <!-- Contacts Presented does not exist in the CTIOS data -->
+                                <!-- th class="center">Total Contacts Presented</th -->
+                                <th class="center">Total Contacts Handled</th>
+                                <th class="center">Average Active Time</th>
+                                <th class="center">Average Wrap Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{#AgentsStats}}
+                            <tr class="" data-target="">
+                                <td>{{AgentFirstName}}</td>
+                                <td>{{AgentLastName}}</td>
+                                <td class="center">{{TotalReady}}</td>
+                                <td class="center">{{TotalNotReady}}</td>
+                                <!-- Contacts Presented does not exist in the CTIOS data -->
+                                <!-- td class="center">{{CallsPresented}}</td -->
+                                <td class="center">{{CallsHandled}}</td>
+                                <td class="center">{{AvgHandleCallsTalkTime}}</td>
+                                <td class="center">{{AvgWrapTime}}</td>
+                            </tr>
+                            {{/AgentsStats}}
+                        </tbody>
+                    </table>
+                </div>
+                {{/if}}
+            </script>
+
+            <script id="mcQ_tmplt" type="text/x-handlebars-template">
+                <div class="row-fluid">
+                    <div class="header">
+                        <h4>Multichannel Queue</h4>
+                    </div>
+                </div>
+                {{#if error}}
+                    {{error}}
+                {{else}}
+                <div class="row-fluid">
+                    <div class="main-body">
+                        <table class="table table-condensed table-bordered main-table">
+                            <thead>
+                                <tr>
+                                    <th class="span2">Skill</th>
+                                    <th class="span2">Channel</th>
+                                    <th class="span2">Source</th>
+                                    <th class="span2">Contacts</th>
+                                    <th class="span4">Longest Wait</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {{#SummaryLineList}}
+                                <tr class="skillrow" data-target="{{lnk Skill}}">
+                                    <td data-target="{{lnk Skill}}">{{Skill}}</td>
+                                    <td data-target="{{lnk Skill}}" class="icons">
+                                        <span class="icon-email" data-channel="email"><i class="icon-envelope" title="Email"></i></span>
+                                        <span class="icon-chat" data-channel="chat"><i class="icon-comment" title="Chat"></i></span>
+                                        <span class="icon-sms" data-channel="sms"><i class="icon-signal" title="SMS"></i></span>
+                                        <span class="icon-socialmedia hidden" data-channel="social"><i class="icon-user" title="Social Media"></i></span>
+                                        <span class="icon-web hidden" data-channel="social"><i class="icon-globe" title="Web"></i></span>
+                                    </td>
+                                    <td data-target="{{lnk Skill}}"><p></p></td>
+                                    <td data-target="{{lnk Skill}}">{{ItemsCount}}</td>
+                                    <td data-target="{{lnk Skill}}">
+                                        <abbr title="{{OldestDateTime}}">{{FormattedOldestWaitTime}}</abbr>
+                                    </td>
+                                </tr>
+                                {{#DetailLineList}}
+                                <tr data-skill="{{lnk Skill}}" class="skilldetail" style="display: none">
+                                    <td><p></p></td>
+                                    <td>{{Channel}}</td>
+                                    <td><p>{{Source}}</p></td>
+                                    <td>{{ItemsCount}}</td>
+                                    <td>
+                                        <abbr title="{{OldestDateTime}}">{{FormattedOldestWaitTime}}</abbr>
+                                    </td>
+                                </tr>
+                                {{/DetailLineList}}
+                                {{/SummaryLineList}}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {{/if}}
+            </script>
+
+
+            <script id="pQue_tmplt" type="text/x-handlebars-template">
+                <div class="row-fluid">
+                    <div class="span12 header">
+                        <h4>Phone Queue</h4>
+                    </div>
+                </div>
+                {{#if error}}
+                    {{error}}
+                {{else}}
+                <div class="row-fluid">
+                    <div class="main-body">
+                        <table class="table table-condensed table-bordered table-striped phone-table">
+                            <thead>
+                                <tr>
+                                    <th rowspan="2">Queue Name</th>
+                                    <th rowspan="2" class="center"># Calls</th>
+                                    <th rowspan="2" class="center">Longest Queue Time</th>
+                                    <th rowspan="2" class="center">Ready</th>
+                                    <th rowspan="2" class="center">Not Ready</th>
+                                    <th colspan="3" class="center">Active</th>
+                                    <th colspan="2" class="center">Wrap Up</th>
+                                </tr>
+                                <tr>
+                                    <th class="center">In</th>
+                                    <th class="center">Out</th>
+                                    <th class="center">Other</th>
+                                    <th class="center">Ready (Pending)</th>
+                                    <th class="center">Not Ready (Pending)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{#Queues}}
+                                <tr>
+                                    <td>{{usq Name}}</td>
+                                    <td class="center">{{Stats.callsInQueue}}</td>
+                                    <td class="center">{{Stats.StartTimeOfLongestCallInQueue}}</td>
+                                    <td class="center">{{Stats.AgentsReady}}</td>
+                                    <td class="center">{{Stats.AgentsNotReady}}</td>
+                                    <td class="center">{{Stats.AgentsTalkingInbound}}</td>
+                                    <td class="center">{{Stats.AgentsTalkingOutbound}}</td>
+                                    <td class="center">{{Stats.AgentsTalkingInternal}}</td>
+                                    <td class="center">{{Stats.AgentsWrapUpReady}}</td>
+                                    <td class="center">{{Stats.AgentsWrapUpNotReady}}</td>
+                                </tr>
+                                {{/Queues}}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {{/if}}
+            </script>
+
+            <script id="ChatBubble_tmplt" type="text/x-handlebars-template">
+                <div class="bubbleHolder span12 {{type}}">
+                    <div id="chatBubble" class="chatBubble">
+                        <p class="bubbleStamp"><b>{{name}}</b> {{timestamp}} <br><b>To: {{whom}}</b></p><p class="bubbleText">{{message}}</p>
+                    </div>
+                </div>
+            </script>
+
+            <script id="StatusBubble_tmplt" type="text/x-handlebars-template">
+                <div class="bubbleHolder span12">
+                    <div id="chatBubble" class="chatBubble">
+                        <p class="bubbleStamp">{{timestamp}}</p><p class="bubbleText">{{message}}</p>
+                    </div>
+                </div>
+            </script>
+
+            <script id="TeamRoster_tmplt" type="text/x-handlebars-template">
+                {{#People}}
+                <li><a href="#" data-targetid="{{Id}}">{{Name}}</a></li>
+                {{/People}}
+                <li><a href="#" data-targetid="{{Id}}">Entire Team</a></li>
+            </script>
+
+            <script type="text/javascript">
+                function activate() {
+                    $(window).trigger('activate');
+                };
+            </script>
+        ]]>
+    </Content>
+</Module>

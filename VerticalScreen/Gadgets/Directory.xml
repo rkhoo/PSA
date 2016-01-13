@@ -1,0 +1,452 @@
+﻿<module>
+    <ModulePrefs title="Directory" height="450" description="none">
+        <Require feature="dynamic-height"/>
+        <Require feature="pubsub-2"/>
+    </ModulePrefs>
+    <Content type="html">
+        <![CDATA[
+        <!DOCTYPE html>
+        <link rel="stylesheet" href="static/bootstrap-css" />
+        <link rel="stylesheet" href="static/internal/gadget/css/directory.css" />
+
+        <script src="static/jquery-js" type="text/javascript"></script>
+        <script src="static/bootstrap-js" type="text/javascript"></script>
+        <script src="static/handlebars-js" type="text/javascript"></script>
+        <script src="static/internal/custom/io.js" type="text/javascript"></script>
+        <script src="static/internal/common/js/happy.js" type="text/javascript"></script>
+        <script src="static/internal/common/js/logger.js" type="text/javascript"></script>
+        <script src="static/finesse-js" type="text/javascript"></script>
+        <script src="gadget/config" type="text/javascript"></script>
+        <script src="static/internal/gadget/js/directory.js" type="text/javascript"></script>
+
+
+        <div class="container-fluid" id="DirectoryGadget">
+            <div class="row-fluid">
+                <div class="dirToggleBtn span12">
+                    <ul class="nav nav-pills">
+                        <li class="viewControlBtn" data-mode="directory"><a href="#">Directory</a></li>
+                        <li class="viewControlBtn" data-mode="queue"><a href="#" class="QueueBtn">Queue</a></li>
+                        <li class="queues-view queues-view-refreshControl"><a href="#" class="btn btn-mini queues-view-refresh-btn"><i class="icon-refresh"></i> Refresh</a></li>
+						<li class="queues-view queues-view-addControl"><a href="#" class="btn btn-mini btn-add-queue"><i class="icon-plus"></i> Add Queue</a></li>
+                        <li class="contact-view contact-view-addControl"><a href="#" class="btn btn-mini btn-add-contact"><i class="icon-plus"></i> Add Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="viewControl queues-view hide">
+                <div class="row queues-filters">
+                    <div class="span3 pull-right">
+                        Search<br />
+                        <input type="text" placeholder="keywords" class="searchInput" />
+                    </div>
+                    <div class="span3 pull-right">
+                        <span>Queue Type</span><br />
+                        <select class="select-control" data-id="QueueType">
+                            <option value="">All</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row-fluid">
+                    <div class="alert alert-success hide main-alert">
+                        <button type="button" class="close" data-hide="alert">&times;</button>
+                        <div class="mainMessage"><strong>Success!</strong> Queue information successfully saved.</div>
+                    </div>
+                </div>
+                <div class="row-fluid">
+                        <table class="table table-condensed table-bordered table-striped">
+                        <thead class="TblHeaderFixed">
+                            <tr>
+                                <th colspan="5"></th>
+                                <th id="qheader-agents" colspan="2"><center>Agents</center></th>
+                                <th id="qheader-active" colspan="3"><center>Active</center></th>
+                                <th id="qheader-wrapup" colspan="2"><center>Wrap Up</center></th>
+                                <th id="qheader-actions-wrap"></th>
+                            </tr>
+                            <tr>
+                                <th id="qheader-name" class="TblHeader" data-orderby="FullName">Name</th>
+                                <th id="qheader-type" class="TblHeader" data-orderby="QueueType">Type</th>
+                                <th id="qheader-ext" class="TblHeader" data-orderby="Extension">Extension</th>
+                                <th id="qheader-calls">Calls</th>
+                                <th id="qheader-longestcall">Longest Queue Time</th>
+                                <th id="qheader-ready">Ready</th>
+                                <th id="qheader-not-ready">Not Ready</th>
+                                <th id="qheader-inbound">Inbound</th>
+                                <th id="qheader-outbound">Outbound</th>
+                                <th id="qheader-internal">Internal</th>
+                                <th id="qheader-wrap-ready">Ready</th>
+                                <th id="qheader-wrap-not-ready">Not Ready</th>
+                                <th id="qheader-actions">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="queues_data_rows">
+                            <script id="queues_tmplt" type="text/x-handlebars-template">
+                            {{#each Data}}
+                                <tr>
+                                    <td class="q-td-name">{{FullName}}</td>
+                                    <td class="q-td-type">{{QueueType}}</td>
+                                    <td class="q-td-ext tbl_extension"><a>{{Extension}}</a></td>
+                                    <td class="q-td-calls" data-id="callsInQueue-{{FinesseQueueId}}">-</td>
+                                    <td class="q-td-longestcall" data-id="startTimeOfLongestCallInQueue-{{FinesseQueueId}}">-</td>
+                                    <td class="q-td-ready" data-id="agentsReady-{{FinesseQueueId}}">-</td>
+                                    <td class="q-td-not-ready" data-id="agentsNotReady-{{FinesseQueueId}}">-</td>
+                                    <td class="q-td-inbound" data-id="agentsTalkingInbound-{{FinesseQueueId}}">-</td>
+                                    <td class="q-td-outbound" data-id="agentsTalkingOutbound-{{FinesseQueueId}}">-</td>
+                                    <td class="q-td-internal" data-id="agentsTalkingInternal-{{FinesseQueueId}}">-</td>
+                                    <td class="q-td-wrap-ready" data-id="agentsWrapUpReady-{{FinesseQueueId}}">-</td>
+                                    <td class="q-td-wrap-not-ready" data-id="agentsWrapUpNotReady-{{FinesseQueueId}}">-</td>
+                                    <td class="q-td-actions">
+                                        <a data-id="{{Id}}" href="#" role="button" class="btn btn-mini btn-view">View</a>
+                                        <a data-id="{{Id}}" href="#" role="button" class="btn btn-mini btn-table-delete">Delete</a>
+                                    </td>
+                                </tr>
+                            {{/each}}
+                            </script>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="row-fluid">
+                    <ul class="pager queues-pager">
+                        <script id="queues_footer_tmplt" type="text/x-handlebars-template">
+                            <li class="pull-left footer-summary">Showing {{TotalShowing}} of {{TotalCount}} Records in Total</li>
+                            {{#if HasNextPage}}
+                            <li class="next"><a href="#" id="foo_navnext">View More</a></li>
+                            {{/if}}
+                        </script>
+                    </ul>
+                </div>
+
+            </div>
+            <div class="viewControl contact-view">
+                <div class="row contact-filters">
+                    <div class="span3 pull-right">
+                        Search<br />
+                        <input type="text" placeholder="keywords" class="searchInput" />
+                    </div>
+                    <div class="span3 pull-right">
+                        <span>Region</span><br />
+                        <select class="select-control" data-id="Region">
+                            <option value="">All</option>
+                        </select>
+                    </div>
+                    <div class="span3 pull-right">
+                        <span>Type</span><br />
+                        <select class="select-control" data-id="Type">
+                            <option value="">All</option>
+                        </select>
+                    </div>
+                    <div class="span3 pull-right">
+                        <span>Role</span><br />
+                        <select class="select-control" data-id="Role">
+                            <option value="">All</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row-fluid">
+                    <div class="alert alert-success hide main-alert">
+                        <button type="button" class="close" data-hide="alert">&times;</button>
+                        <div class="mainMessage"><strong>Success!</strong> Contact information successfully saved.</div>
+                    </div>
+                </div>
+                <div class="row-fluid">
+                    <table id="resultsTable" class="table table-condensed table-bordered table-striped">
+                        <thead class="TblHeaderFixed">
+                            <tr style="position:relative">
+                                <th class="TblHeader" id="nameheader" data-orderby="FullName">Name</th>
+                                <th class="TblHeader" id="companyheader" data-orderby="CompanyName">Organization</th>
+                                <th class="TblHeader" id="titleheader" data-orderby="Title">Title</th>
+                                <th class="TblHeader" id="roleheader" data-orderby="Type">Type</th>
+                                <th class="TblHeader" id="regionheader" data-orderby="Region">Region</th>
+                                <th class="TblHeader" id="typeheader" data-orderby="Role">Role</th>
+                                <th class="TblHeader" id="phoneheader" data-orderby="Phone">Phone</th>
+                                <th class="TblHeader" id="emailheader" data-orderby="Email">Email</th>
+                                <th class="TblHeader" id="socialheader" data-orderby="Social">Social</th>
+                                <th class="" id="actionheader">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="contacts_data_rows">
+                            <script id="contacts_tmplt" type="text/x-handlebars-template">
+                            {{#each Data}}
+                                <tr>
+                                    <td class="td_name">{{FullName}}</td>
+                                    <td class="td_company">{{CompanyName}}</td>
+                                    <td class="td_title">{{Title}}</td>
+                                    <td class="td_role">{{Type}}</td>
+                                    <td class="td_region">{{Region}}</td>
+                                    <td class="td_type">{{Role}}</td>
+                                    <td class="td_phone tbl_extension"><a>{{Phone}}</a></td>
+                                    <td class="td_email">{{Email}}</td>
+                                    <td class="td_social">{{Social}}</td>
+                                    <td class="td_action">
+                                        <a data-id="{{Id}}" href="#" role="button" class="btn btn-mini btn-view">View</a>
+                                        <a data-id="{{Id}}" href="#" role="button" class="btn btn-mini btn-table-delete">Delete</a>
+                                    </td>
+                                </tr>
+                            {{/each}}
+                            </script>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="row-fluid">
+                    <ul class="pager contacts-pager">
+                        <script id="contacts_footer_tmplt" type="text/x-handlebars-template">
+                            <li class="pull-left footer-summary">Showing {{TotalShowing}} of {{TotalCount}} Records in Total</li>
+                            {{#if HasNextPage}}
+                            <li class="next"><a href="#" id="foo_navnext">View More</a></li>
+                            {{/if}}
+                        </script>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bootstrap - View modal -->
+        <div id="viewModal" class="modal hide fade contactModal" tabindex="-1" role="dialog" aria-labelledby="Contact_View" aria-hidden="true">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                <h4>Contact View</h4>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-success hide">
+                    <button type="button" class="close" data-hide="alert">&times;</button>
+                    <strong>Success!</strong> Contact information successfully saved.
+                </div>
+				<div id="modal-form"></div>
+                <script id="contacts_detailView_tmplt" type="text/x-handlebars-template">
+                    <form class="form-horizontal" id="contactResults">
+                        <input type="hidden"  name="Contact.Id" value="{{Id}}">
+                        <div class="row">
+                            <div class="span4">
+                                <div class="control-group">
+                                    <label class="control-label" for="Contact.FullName">Full Name:</label>
+                                    <div class="controls contactResultsDisplay">
+                                        {{FullName}}
+                                    </div>
+                                </div>
+                                <div class="control-group">
+                                    <label class="control-label" for="Contact.CompanyName">Organization:</label>
+                                    <div class="controls contactResultsDisplay">
+                                        {{CompanyName}}
+                                    </div>
+                                </div>
+                                <div class="control-group">
+                                    <label class="control-label" for="Contact.Title">Title:</label>
+                                    <div class="controls contactResultsDisplay">
+                                        {{Title}}
+                                    </div>
+                                </div>
+
+                                <div class="control-group">
+                                    <label class="control-label" for="Contact.Role">Role:</label>
+                                    <div class="controls contactResultsDisplay">
+                                        {{Role}}
+                                    </div>
+                                </div>
+                                <div class="control-group">
+                                    <label class="control-label" for="Contact.Region">Region:</label>
+                                    <div class="controls contactResultsDisplay">
+                                        {{Region}}
+                                    </div>
+                                </div>
+                                <div class="control-group">
+                                    <label class="control-label" for="Contact.Type">Type:</label>
+                                    <div class="controls contactResultsDisplay">
+                                        {{Type}}
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="span4">
+                                <div class="control-group">
+                                    <label class="control-label" for="Contact.Email">Email:</label>
+                                    <div class="controls contactResultsDisplay">
+                                        {{Email}}
+                                    </div>
+                                    </div>
+                                <div class="control-group">
+                                    <label class="control-label" for="Contact.Phone">Primary Phone:</label>
+                                    <div class="controls contactResultsDisplay">
+                                        {{Phone}}
+                                    </div>
+                                    </div>
+                                <div class="control-group">
+                                    <label class="control-label" for=""Contact.Social">Social:</label>
+                                    <div class="controls contactResultsDisplay">
+                                        {{Social}}
+                                    </div>
+                                    </div>
+                                {{#eachkeys Meta}}
+                                <div class="control-group">
+                                    <label class="control-label" for="Meta.{{this.key}}">{{this.key}}:</label>
+                                    <div class="controls contactResultsDisplay">
+                                        {{this.value}}
+                                    </div>
+                                    </div>
+                                {{/eachkeys}}
+                            </div>
+                        </div>
+                    </form>
+                </script>
+
+                <script id="contacts_detailEdit_tmplt" type="text/x-handlebars-template">
+                    <form class="form-horizontal" id="contactResults">
+                        <input type="hidden"  name="Contact.Id" value="{{Id}}">
+                        <div class="row">
+                            <div class="span4">
+                                <div class="control-group">
+                                    <label class="control-label" for="Contact.FullName">Full Name</label>
+                                    <div class="controls">
+                                        <input type="text" name="Contact.FullName" value="{{FullName}}" maxlength="50">
+                                    </div>
+                                </div>
+                                <div class="control-group">
+                                    <label class="control-label" for="Contact.CompanyName">Organization</label>
+                                    <div class="controls">
+                                        <input type="text" name="Contact.CompanyName" value="{{CompanyName}}" maxlength="50">
+                                    </div>
+                                </div>
+                                <div class="control-group">
+                                    <label class="control-label" for="Contact.Title">Title</label>
+                                    <div class="controls">
+                                        <input type="text" name="Contact.Title" value="{{Title}}" maxlength="50">
+                                    </div>
+                                </div>
+
+                                <div class="control-group">
+                                    <label class="control-label" for="Contact.Role">Role</label>
+                                    <div class="controls">
+                                        <select name="Contact.Role">
+                                            <option selected>{{Role}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="control-group">
+                                    <label class="control-label" for="Contact.Region">Region</label>
+                                    <div class="controls">
+                                        <select name="Contact.Region">
+                                            <option selected>{{Region}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="control-group">
+                                    <label class="control-label" for="Contact.Type">Type</label>
+                                    <div class="controls">
+                                        <select name="Contact.Type">
+                                            <option selected>{{Type}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="span4">
+                                <div class="control-group">
+                                    <label class="control-label" for="Contact.Email">Email</label>
+                                    <div class="controls">
+                                        <input type="text" name="Contact.Email" value="{{Email}}" maxlength="50">
+                                    </div>
+                                </div>
+                                <div class="control-group">
+                                    <label class="control-label" for="Contact.Phone">Primary Phone</label>
+                                    <div class="controls">
+                                        <input type="text" name="Contact.Phone" value="{{Phone}}" maxlength="50">
+                                    </div>
+                                </div>
+                                <div class="control-group">
+									<label class="control-label" for="Contact.Social">Social</label>
+                                    <div class="controls">
+                                        <input type="text" name="Contact.Social" value="{{Social}}" maxlength="50">
+                                    </div>
+                                </div>
+                                {{#eachkeys Meta}}
+                                <div class="control-group">
+                                    <label class="control-label" for="Meta.{{this.key}}">{{this.key}}</label>
+                                    <div class="controls">
+                                        <input type="text" name="Meta.{{this.key}}" value="{{this.value}}" maxlength="50">
+                                    </div>
+                                </div>
+                                {{/eachkeys}}
+                            </div>
+                        </div>
+                    </form>
+                </script>
+				<script id="queue_detailEdit_tmplt" type="text/x-handlebars-template">
+					<form class="form-horizontal" id="contactResults">
+						<input type="hidden" name="Queue.Id" value="{{Id}}" />
+						<div class="row">
+							<div class="span4">
+								<div class="control-group">
+									<label class="control-label" for="Queue.FinesseQueueId">ID</label>
+									<div class="controls">
+										<input type="text" name="Queue.FinesseQueueId" value="{{FinesseQueueId}}" maxlength="50">
+									</div>
+								</div>
+								<div class="control-group">
+									<label class="control-label" for="Queue.FullName">Full Name</label>
+									<div class="controls">
+										<input type="text" name="Queue.FullName" value="{{FullName}}" maxlength="50">
+									</div>
+								</div>
+								<div class="control-group">
+									<label class="control-label" for="Queue.Extension">Extension</label>
+									<div class="controls">
+										<input type="text" name="Queue.Extension" value="{{Extension}}" maxlength="50">
+									</div>
+								</div>
+								<div class="control-group">
+									<label class="control-label" for="Queue.QueueType">Type</label>
+									<div class="controls">
+										<select name="Queue.QueueType" value="{{QueueType}}">
+											<option selected>{{QueueType}}</option>
+										</select>
+									</div>
+								</div>
+							</div>
+						</div>
+					</form>
+				</script>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-small btn-delete hide btn-danger btn-admin-control pull-left">Delete</button>
+                <button class="btn btn-small btn-primary btn-save btn-admin-control hide">Save</button>
+                <button class="btn btn-small" data-dismiss="modal" aria-hidden="true">Close</button>
+            </div>
+        </div>
+        <!-- end View modal -->
+        <script type="text/javascript">
+            gadgets.HubSettings.onConnect = function () {
+                var prefs = new gadgets.Prefs();
+
+                upstream.Logger.setDebug(true);
+
+                var url = upstream.gadget.Config.baseUri + "/api/user/" + prefs.getString("id");
+
+                upstream.gadgets.io.ajax({
+                    url: url,
+                    cache: false,
+                    dataType: 'json',
+                    context: document.body,
+
+                    success: function (user) {
+                        upstream.Logger.debug('Directory', "User information loaded");
+                        upstream.modules.DirectoryController.Init({
+                            role: user.User.IsSupervisor,
+                            apiRootUrl: upstream.gadget.Config.baseUri + "/applications/directory",
+                            finesseUrl: upstream.gadget.Config.primaryFinesseUri,
+                            mode: "queue",
+                            showToggle: false,
+                            directoryConfig: {},
+                            queueConfig: {}
+                        });
+                    },
+
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        upstream.Logger.error('Directory', 'Unable to load user information');
+                    }
+                });
+            };
+
+            function activate() {
+                upstream.modules.DirectoryController.Refresh();
+            };
+        </script>
+        ]]>
+    </Content>
+</module>

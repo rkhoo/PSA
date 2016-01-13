@@ -1,0 +1,39 @@
+@{ 
+		
+	string gadgetValue = Request.QueryString["gadget"]; 
+    string userValue = Request.QueryString["user"];
+    string passValue = Request.QueryString["pass"];
+    string activityIdValue = Request.QueryString["activityId"];
+	string adminvalue = Request.QueryString["admin"];
+    
+    // You must set this to the IP of UWF server, or the VIP that is in front of the UWF server.
+    var url = "http://172.18.10.84/gadget";
+    
+    if (!String.IsNullOrWhiteSpace(gadgetValue) && !String.IsNullOrWhiteSpace(userValue) && !String.IsNullOrWhiteSpace(passValue) && gadgetValue.Equals("directory", StringComparison.InvariantCultureIgnoreCase))
+    {   
+    	// You must set this authkey to the Cisco user that are valid on all PGs
+		string authValue = "ODk5OTk5Ojg5OTk5OQ==";
+    	
+    	Response.Redirect(url+ "/directory?mediaType=html&authKey=" + authValue + "&activityId=" + activityIdValue + "&admin=" + adminvalue);   
+    }
+    else if (!String.IsNullOrWhiteSpace(gadgetValue) && !String.IsNullOrWhiteSpace(userValue) && !String.IsNullOrWhiteSpace(passValue) && gadgetValue.Equals("team", StringComparison.InvariantCultureIgnoreCase))
+    {
+			string authValue = Encode64(userValue + ":" + passValue);
+    	
+    	Response.Redirect(url+ "/team?mediaType=html&authKey=" + authValue); 
+    }
+    
+} 
+
+@functions {
+
+    public static string Encode64(string credentials) {
+
+		  byte[] toEncodeAsBytes = System.Text.ASCIIEncoding.ASCII.GetBytes(credentials);
+
+    	string authValue = System.Convert.ToBase64String(toEncodeAsBytes);
+    	
+    	return authValue;
+
+    }
+}
